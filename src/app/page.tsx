@@ -1,113 +1,188 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Layout, Table, Button, Select, Space, message } from "antd";
+import { ColumnsType } from "antd/es/table";
+import Link from "next/link";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const { Header, Content, Footer } = Layout;
+const { Option } = Select;
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+interface Team {
+  id: number;
+  name: string;
 }
+
+interface SetResult {
+  teamA: number;
+  teamB: number;
+}
+
+interface MatchWithTeams {
+  id: number;
+  data: string;
+  teamA: Team;
+  teamB: Team;
+  result: string;
+  resultDetailed: {
+    sets: SetResult[];
+  };
+  status: "PLANNED" | "IN_PROGRESS" | "FINISHED";
+}
+
+const Home = () => {
+  const [matches, setMatches] = useState<MatchWithTeams[]>([]);
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "PLANNED" | "IN_PROGRESS" | "FINISHED"
+  >("all");
+
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
+  const fetchMatches = async () => {
+    try {
+      const response = await axios.get("/api/matches");
+      setMatches(response.data);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      message.error("Failed to fetch matches");
+    }
+  };
+
+  const handleStatusChange = (
+    value: "all" | "PLANNED" | "IN_PROGRESS" | "FINISHED"
+  ) => {
+    setStatusFilter(value);
+  };
+
+  const handleCopy = (record: MatchWithTeams) => {
+    if (!record.resultDetailed || !record.resultDetailed.sets) {
+      message.error("No match details to copy");
+      return;
+    }
+
+    console.log(record);
+
+    const date = new Date(record.data);
+    const formattedDate = `${date.getFullYear()}.${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")} ${(
+      date.getHours() - 2
+    )
+      .toString()
+      .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+
+    const teamAResults = record.resultDetailed.sets.map((set) => set.teamA);
+    const teamBResults = record.resultDetailed.sets.map((set) => set.teamB);
+
+    const teamATotal = teamAResults.filter(
+      (score, index) => score > teamBResults[index]
+    ).length;
+    const teamBTotal = teamBResults.filter(
+      (score, index) => score > teamAResults[index]
+    ).length;
+
+    const teamAResultsText = teamAResults.join(" | ");
+    const teamBResultsText = teamBResults.join(" | ");
+
+    const textToCopy = `S1 | S2 | S3 | S4 | Total\n${record.teamA.name} ${teamAResultsText} | ${teamATotal}\n${record.teamB.name} ${teamBResultsText} | ${teamBTotal}\n${formattedDate}`;
+
+    navigator.clipboard
+      .writeText(textToCopy)
+      .then(() => {
+        message.success(`Copied match data: ${record.id}`);
+      })
+      .catch((error) => {
+        message.error("Failed to copy match data");
+        console.error("Copy failed", error);
+      });
+  };
+
+  const handleDelete = async (record: MatchWithTeams) => {
+    try {
+      await axios.delete(`/api/matches`, { params: { id: record.id } });
+      message.success(`Deleted match: ${record.id}`);
+      setMatches(matches.filter((match) => match.id !== record.id));
+    } catch (error) {
+      console.error("Error deleting match:", error);
+      message.error("Failed to delete match");
+    }
+  };
+
+  const columns: ColumnsType<MatchWithTeams> = [
+    {
+      title: "Date",
+      dataIndex: "data",
+      key: "data",
+      render: (data: string) => new Date(data).toLocaleDateString(),
+    },
+    {
+      title: "Teams",
+      key: "teams",
+      render: (_: any, record: MatchWithTeams) =>
+        `${record.teamA.name} vs ${record.teamB.name}`,
+    },
+    {
+      title: "Score",
+      dataIndex: "result",
+      key: "result",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_: any, record: MatchWithTeams) => (
+        <Space>
+          {(record.status === "PLANNED" || record.status === "IN_PROGRESS") && (
+            <Button type="primary">
+              <Link href={`/match/${record.id}`}>View</Link>
+            </Button>
+          )}
+          {record.status === "FINISHED" && (
+            <Button onClick={() => handleCopy(record)}>Copy Data</Button>
+          )}
+          <Button danger onClick={() => handleDelete(record)}>
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  const filteredMatches =
+    statusFilter === "all"
+      ? matches
+      : matches.filter((match) => match.status === statusFilter);
+
+  return (
+    <Layout style={{ minHeight: "100vh" }}>
+      <Header
+        style={{ color: "white", textAlign: "center", padding: "0 24px" }}
+      >
+        <h1>Volleyball Scoreboard</h1>
+      </Header>
+      <Content style={{ padding: "24px" }}>
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Select
+            defaultValue="all"
+            style={{ width: 200 }}
+            onChange={handleStatusChange}
+          >
+            <Option value="all">All</Option>
+            <Option value="PLANNED">Planned</Option>
+            <Option value="IN_PROGRESS">In Progress</Option>
+            <Option value="FINISHED">Finished</Option>
+          </Select>
+          <Table columns={columns} dataSource={filteredMatches} rowKey="id" />
+        </Space>
+      </Content>
+    </Layout>
+  );
+};
+
+export default Home;

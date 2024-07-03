@@ -1,0 +1,62 @@
+.matchContainer {
+  text-align: center;
+}
+
+.matchHeader {
+  margin-bottom: 24px;
+}
+
+.teamScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreBoard {
+  margin-bottom: 24px;
+}
+
+.score {
+  font-size: 64px;
+  margin: 16px 0;
+  border: 0px;
+  background-color: transparent;
+}
+
+.score:disabled {
+  cursor: not-allowed;
+}
+
+.score:hover,
+.score:focus,
+.score:active {
+  background: transparent;
+  border: 0px;
+  box-shadow: 0px;
+}
+
+.score:hover::after,
+.score:focus::after,
+.score:active::after {
+  content: none;
+}
+
+.matchInfo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+}
+
+.matchActions {
+  margin-top: 24px;
+}
+
+.matchActions button {
+  margin: 0 8px;
+}
+
+.sets {
+  font-size: 40px;
+  font-weight: bolder;
+}
