@@ -1,12 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import axios from "axios";
 import { Layout, Button, Row, Col, Typography, Space, message } from "antd";
 import { useSession } from "next-auth/react";
 import styles from "./MatchPage.module.css";
 import { SwapOutlined } from "@ant-design/icons";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 interface Team {
@@ -30,6 +31,8 @@ interface MatchWithTeams {
   };
   status: "PLANNED" | "IN_PROGRESS" | "FINISHED";
 }
+
+const socket = io("http://localhost:3001");
 
 export default function MatchPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -63,25 +66,97 @@ export default function MatchPage({ params }: { params: { id: string } }) {
       };
 
       setMatch(fetchedMatch);
-
-      if (fetchedMatch.resultDetailed.sets.length > 0) {
-        setCurrentSet(fetchedMatch.resultDetailed.sets.length - 1);
-        setTeamAScore(
-          fetchedMatch.resultDetailed.sets[
-            fetchedMatch.resultDetailed.sets.length - 1
-          ].teamA
-        );
-        setTeamBScore(
-          fetchedMatch.resultDetailed.sets[
-            fetchedMatch.resultDetailed.sets.length - 1
-          ].teamB
-        );
-      }
+      setCurrentSet(0);
+      setTeamAScore(0);
+      setTeamBScore(0);
     } catch (error) {
       console.error("Error fetching match:", error);
       message.error("Failed to fetch match");
     }
   };
+
+  useEffect(() => {
+    const socket = io("http://localhost:3001");
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+      socket.emit("joinMatch", params.id);
+    });
+
+    socket.on("matchUpdated", (data: MatchWithTeams) => {
+      console.log("Match updated:", data);
+      setMatch((prevMatch) => ({
+        ...prevMatch!,
+        ...data,
+      }));
+    });
+
+    socket.on(
+      "matchData",
+      (data: {
+        teamAScore: number;
+        teamBScore: number;
+        teamASet: number;
+        teamBSet: number;
+        reverted: boolean;
+      }) => {
+        console.log("Current match data:", data);
+        const { teamAScore, teamASet, teamBScore, teamBSet, reverted } = data;
+        setReverted(reverted);
+        console.log("Pierdolone A", teamAScore);
+        console.log("Pierdolone B", teamBScore);
+        setTeamAScore(teamAScore);
+        setTeamBScore(teamBScore);
+        setTeamASet(teamASet);
+        setTeamBSet(teamBSet);
+      }
+    );
+
+    socket.on(
+      "teamAScoreUpdated",
+      (data: { matchId: string; score: number }) => {
+        console.log(data);
+        if (data.matchId === params.id) {
+          setTeamAScore(data.score);
+        }
+      }
+    );
+
+    socket.on(
+      "teamBScoreUpdated",
+      (data: { matchId: string; score: number }) => {
+        console.log(data.matchId + params.id);
+        if (data.matchId === params.id) {
+          setTeamBScore(data.score);
+        }
+      }
+    );
+
+    socket.on("teamASetUpdated", (data: { matchId: string; set: number }) => {
+      if (data.matchId === params.id) {
+        setTeamASet(data.set);
+      }
+    });
+
+    socket.on("teamBSetUpdated", (data: { matchId: string; set: number }) => {
+      if (data.matchId === params.id) {
+        setTeamBSet(data.set);
+      }
+    });
+
+    socket.on(
+      "revertUpdated",
+      (data: { matchId: string; reverted: boolean }) => {
+        if (data.matchId === params.id) {
+          setReverted(data.reverted);
+        }
+      }
+    );
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [params.id]);
 
   useEffect(() => {
     if (intervalId) {
@@ -96,9 +171,14 @@ export default function MatchPage({ params }: { params: { id: string } }) {
 
   const handleScoreChange = (team: "A" | "B", delta: number) => {
     if (team === "A") {
-      setTeamAScore((prev) => Math.max(prev + delta, 0));
+      const newScore = Math.max(teamAScore + delta, 0);
+      setTeamAScore(newScore);
+
+      socket.emit("updateTeamAScore", { matchId: params.id, score: newScore });
     } else {
-      setTeamBScore((prev) => Math.max(prev + delta, 0));
+      const newScore = Math.max(teamBScore + delta, 0);
+      setTeamBScore(newScore);
+      socket.emit("updateTeamBScore", { matchId: params.id, score: newScore });
     }
   };
 
@@ -115,9 +195,6 @@ export default function MatchPage({ params }: { params: { id: string } }) {
       const updatedSets = [...match.resultDetailed.sets];
       updatedSets[currentSet] = { teamA: teamAScore, teamB: teamBScore };
 
-      console.log(newTeamASet);
-      console.log(newTeamBSet);
-
       const updatedMatch: MatchWithTeams = {
         ...match,
         resultDetailed: {
@@ -127,11 +204,11 @@ export default function MatchPage({ params }: { params: { id: string } }) {
       };
 
       setMatch(updatedMatch);
-      setCurrentSet(currentSet + 1);
-      setTeamASet(newTeamASet);
-      setTeamBSet(newTeamBSet);
-      setTeamAScore(0);
-      setTeamBScore(0);
+
+      socket.emit("updateTeamAScore", { matchId: params.id, score: 0 });
+      socket.emit("updateTeamBScore", { matchId: params.id, score: 0 });
+      socket.emit("updateTeamASet", { matchId: params.id, set: newTeamASet });
+      socket.emit("updateTeamBSet", { matchId: params.id, set: newTeamBSet });
     }
   };
 
@@ -139,10 +216,13 @@ export default function MatchPage({ params }: { params: { id: string } }) {
     if (match) {
       const updatedMatch = { ...match, status: "FINISHED" as "FINISHED" };
       setMatch(updatedMatch);
+      console.log(updatedMatch);
       axios
         .put(`/api/matches/${match.id}`, updatedMatch)
         .then(() => {
           message.success("Match ended successfully");
+
+          socket.emit("updateMatch", updatedMatch);
         })
         .catch((error) => {
           console.error("Error ending match:", error);
@@ -152,8 +232,9 @@ export default function MatchPage({ params }: { params: { id: string } }) {
   };
 
   const handleRevert = () => {
-    setReverted(!reverted);
-    console.log(reverted);
+    const newReverted = !reverted;
+    setReverted(newReverted);
+    socket.emit("updateRevert", { matchId: params.id, reverted: newReverted });
   };
 
   const handleReturnToHome = () => {
@@ -164,6 +245,10 @@ export default function MatchPage({ params }: { params: { id: string } }) {
     match?.status === "FINISHED" ||
     session?.user.role === "OBSERVATOR" ||
     session === null;
+
+  if (!match || !match.teamA || !match.teamB) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -267,7 +352,7 @@ export default function MatchPage({ params }: { params: { id: string } }) {
             <Row justify="center" className={styles.matchActions}>
               <Button
                 onClick={handleEndSet}
-                disabled={isDisabled || !(teamAScore >= 25 || teamBScore >= 25)}
+                disabled={isDisabled || !(teamAScore >= 1 || teamBScore >= 1)}
               >
                 End Set
               </Button>
