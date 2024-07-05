@@ -17,28 +17,18 @@
 }
 
 .score {
-  font-size: 64px;
-  margin: 16px 0;
-  border: 0px;
-  background-color: transparent;
+  padding: 0;
+  height: 150px;
+  width: 150px;
+  margin: 10px;
+  font-size: 80px;
+  cursor: pointer;
 }
 
 .score:disabled {
   cursor: not-allowed;
-}
-
-.score:hover,
-.score:focus,
-.score:active {
-  background: transparent;
-  border: 0px;
-  box-shadow: 0px;
-}
-
-.score:hover::after,
-.score:focus::after,
-.score:active::after {
-  content: none;
+  color: rgba(0, 0, 0, 0.88);
+  background-color: white;
 }
 
 .matchInfo {

@@ -161,7 +161,9 @@ export default function MatchPage({ params }: { params: { id: string } }) {
   };
 
   const isDisabled =
-    match?.status === "FINISHED" || session?.user.role === "OBSERVATOR";
+    match?.status === "FINISHED" ||
+    session?.user.role === "OBSERVATOR" ||
+    session === null;
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -190,7 +192,7 @@ export default function MatchPage({ params }: { params: { id: string } }) {
                     : `${teamASet} - ${teamBSet}`}
                 </Text>
                 <br></br>
-                <Button onClick={handleRevert}>
+                <Button onClick={handleRevert} disabled={isDisabled}>
                   <SwapOutlined />
                 </Button>
               </Col>
@@ -221,23 +223,12 @@ export default function MatchPage({ params }: { params: { id: string } }) {
                 >
                   -1
                 </Button>
-                <Title className={styles.score}>
-                  {reverted ? teamBScore : teamAScore}
-                </Title>
                 <Button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    boxShadow: "none",
-                    padding: 0,
-                    margin: 0,
-                    fontSize: "24px",
-                    cursor: "pointer",
-                  }}
+                  className={styles.score}
                   onClick={() => handleScoreChange(reverted ? "B" : "A", 1)}
                   disabled={isDisabled}
                 >
-                  +1
+                  {reverted ? teamBScore : teamAScore}
                 </Button>
               </Col>
               <Col span={8} className={styles.matchInfo}>
@@ -263,30 +254,20 @@ export default function MatchPage({ params }: { params: { id: string } }) {
                 >
                   -1
                 </Button>
-                <Title className={styles.score}>
-                  {reverted ? teamAScore : teamBScore}
-                </Title>
+
                 <Button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    boxShadow: "none",
-                    padding: 0,
-                    margin: 0,
-                    fontSize: "24px",
-                    cursor: "pointer",
-                  }}
+                  className={styles.score}
                   onClick={() => handleScoreChange(reverted ? "A" : "B", 1)}
                   disabled={isDisabled}
                 >
-                  +1
+                  {reverted ? teamAScore : teamBScore}
                 </Button>
               </Col>
             </Row>
             <Row justify="center" className={styles.matchActions}>
               <Button
                 onClick={handleEndSet}
-                disabled={isDisabled || !(teamAScore >= 1 || teamBScore >= 1)}
+                disabled={isDisabled || !(teamAScore >= 25 || teamBScore >= 25)}
               >
                 End Set
               </Button>
@@ -298,7 +279,6 @@ export default function MatchPage({ params }: { params: { id: string } }) {
           </div>
         )}
       </Content>
-      <Footer style={{ textAlign: "center" }}>Footer</Footer>
     </Layout>
   );
 }
