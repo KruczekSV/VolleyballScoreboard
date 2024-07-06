@@ -69,17 +69,20 @@ async function main() {
       },
     ],
   });
-
+  //admin admin
+  //test test
   await prisma.user.createMany({
     data: [
       {
-        login: "referee1",
-        password: "password1",
+        login: "admin",
+        password:
+          "$2a$10$4NzL.tGsmHDK8H.x1mVoF.usc9hfCMgnM.miCIzfcaEXHvpV8noEy",
         role: "REFEREE",
       },
       {
-        login: "observer1",
-        password: "password2",
+        login: "test",
+        password:
+          "$2a$10$McdsGl6pP.PupulvT.WpC.qfG7E4u5aL0W6QCRhrrx0sOLMUyDgVm",
         role: "OBSERVATOR",
       },
     ],

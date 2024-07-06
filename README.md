@@ -23,6 +23,15 @@ Migracje bazy danych:
 
     npx prisma migrate dev --name init
 
+Wypełnienie przykładowymi danymi:
+
+    npx ts-node prisma/seed.ts
+    (
+        Na start dostępne są 2 konta:
+            admin admin (sędzia)
+            test test (obserwator)
+    )
+
 Uruchomienie serwera deweloperskiego:
 
 bash
