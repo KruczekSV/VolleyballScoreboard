@@ -12,16 +12,12 @@ const matchesData = {};
 io.on("connection", (socket) => {
   console.log("New client connected");
 
-  // Oczekiwanie na przesłanie ID meczu przez klienta
   socket.on("joinMatch", (matchId) => {
     console.log(`Client joined match: ${matchId}`);
     socket.join(matchId);
 
-    console.log("albo chuj");
-    // Wysyłanie aktualnych danych meczu do klienta
     if (matchesData[matchId]) {
       console.log(matchesData[matchId]);
-      console.log("no powinno działać");
       socket.emit("matchData", matchesData[matchId]);
     }
   });
@@ -42,7 +38,6 @@ io.on("connection", (socket) => {
     const { matchId, score } = data;
     if (!matchesData[matchId]) matchesData[matchId] = {};
     matchesData[matchId].teamAScore = score;
-    console.log("server A " + matchId);
     io.to(matchId).emit("teamAScoreUpdated", data);
   });
 
@@ -50,7 +45,6 @@ io.on("connection", (socket) => {
     const { matchId, score } = data;
     if (!matchesData[matchId]) matchesData[matchId] = {};
     matchesData[matchId].teamBScore = score;
-    console.log("server B " + score);
     io.to(matchId).emit("teamBScoreUpdated", data);
   });
 

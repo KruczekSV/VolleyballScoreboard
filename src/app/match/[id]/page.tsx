@@ -67,8 +67,8 @@ export default function MatchPage({ params }: { params: { id: string } }) {
 
       setMatch(fetchedMatch);
       setCurrentSet(0);
-      setTeamAScore(0);
-      setTeamBScore(0);
+      // setTeamAScore(0);
+      // setTeamBScore(0);
     } catch (error) {
       console.error("Error fetching match:", error);
       message.error("Failed to fetch match");
@@ -103,8 +103,8 @@ export default function MatchPage({ params }: { params: { id: string } }) {
         console.log("Current match data:", data);
         const { teamAScore, teamASet, teamBScore, teamBSet, reverted } = data;
         setReverted(reverted);
-        console.log("Pierdolone A", teamAScore);
-        console.log("Pierdolone B", teamBScore);
+        console.log("Score A", teamAScore);
+        console.log("Score B", teamBScore);
         setTeamAScore(teamAScore);
         setTeamBScore(teamBScore);
         setTeamASet(teamASet);
@@ -115,7 +115,6 @@ export default function MatchPage({ params }: { params: { id: string } }) {
     socket.on(
       "teamAScoreUpdated",
       (data: { matchId: string; score: number }) => {
-        console.log(data);
         if (data.matchId === params.id) {
           setTeamAScore(data.score);
         }
@@ -125,7 +124,6 @@ export default function MatchPage({ params }: { params: { id: string } }) {
     socket.on(
       "teamBScoreUpdated",
       (data: { matchId: string; score: number }) => {
-        console.log(data.matchId + params.id);
         if (data.matchId === params.id) {
           setTeamBScore(data.score);
         }
@@ -352,11 +350,20 @@ export default function MatchPage({ params }: { params: { id: string } }) {
             <Row justify="center" className={styles.matchActions}>
               <Button
                 onClick={handleEndSet}
-                disabled={isDisabled || !(teamAScore >= 1 || teamBScore >= 1)}
+                disabled={
+                  isDisabled ||
+                  !(
+                    (teamAScore > 25 || teamBScore > 25) &&
+                    Math.abs(teamAScore - teamBScore) >= 2
+                  )
+                }
               >
                 End Set
               </Button>
-              <Button onClick={handleEndMatch} disabled={isDisabled}>
+              <Button
+                onClick={handleEndMatch}
+                disabled={isDisabled || !(teamASet >= 3 || teamBSet >= 3)}
+              >
                 End Match
               </Button>
               <Button onClick={handleReturnToHome}>Return to Home</Button>

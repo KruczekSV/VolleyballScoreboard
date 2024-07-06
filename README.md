@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Volleyball Scoreboard
 
-## Getting Started
+Volleyball Scoreboard to aplikacja webowa służąca do śledzenia wyników meczów siatkówki w czasie rzeczywistym. Projekt wykorzystuje technologię Socket.io do komunikacji w czasie rzeczywistym pomiędzy serwerem a klientami, co umożliwia aktualizację wyników meczu i czasu gry na wszystkich podłączonych urządzeniach.
 
-First, run the development server:
+Instalacja
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    Sklonuj repozytorium:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+    git clone https://github.com/KruczekSV/VolleyballScoreboard.git
+    cd VolleyballScoreboard
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Zainstaluj zależności:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+    npm install
 
-## Learn More
+Skonfiguruj plik .env:
 
-To learn more about Next.js, take a look at the following resources:
+    DATABASE_URL="mysql://username:password@host:port/database"
+    NEXTAUTH_URL=http://localhost:3000
+    NEXTAUTH_SECRET=your-secret-key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Migracje bazy danych:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+    npx prisma migrate dev --name init
 
-## Deploy on Vercel
+Uruchomienie serwera deweloperskiego:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+bash
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+    npm run dev
+
+Struktura projektu
+
+    volleyball-scoreboard/
+    ├── prisma/                 # Schematy i migracje bazy danych Prisma
+    │   ├── schema.prisma
+    ├── public/                 # Pliki publiczne
+    │   ├── favicon.ico
+    │    src/
+    │    ├── app/
+    │    │   ├── api/           # Endpointy
+    │    │   │   ├── auth/
+    │    │   │   │   ├── [...nextauth]/
+    │    │   │   │   │   ├── auth.config.ts
+    │    │   │   │   │   └── route.ts
+    │    │   │   ├── matches/
+    │    │   │   │   ├── [id]/
+    │    │   │   │   │   └── route.ts
+    │    │   │   │   └── route.ts
+    │    │   │   ├── register/
+    │    │   │   │   └── route.ts
+    │    │   │   └── teams/
+    │    │   │       └── route.ts
+    │    ├── components/
+    │    │   ├── ClientSessionProvider.tsx
+    │    │   └── HeaderWithSession.tsx
+    │    ├── create/
+    │    │   ├── match/
+    │    │   │   └── page.tsx
+    │    │   ├── rules/
+    │    │   │   └── page.tsx
+    │    │   └── team/
+    │    │       └── page.tsx
+    │    ├── login/
+    │    │   ├── layout.tsx
+    │    │   ├── login.module.css
+    │    │   └── page.tsx
+    │    ├── match/
+    │    │   └── [id]/
+    │    │       ├── MatchPage.module.css
+    │    │       └── page.tsx
+    │    ├── register/
+    │    │   └── page.tsx
+    │    ├── favicon.ico
+    │    ├── globals.css
+    │    ├── layout.tsx
+    │    └── page.tsx

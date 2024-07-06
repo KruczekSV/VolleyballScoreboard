@@ -8,7 +8,6 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  console.log("ENDPOINT MATCH GET");
 
   const match = await prisma.match.findUnique({
     where: { id: Number(id) },
@@ -46,8 +45,8 @@ export async function PUT(
   const { id } = params;
   const updatedMatch = await request.json();
 
-  console.log("Received PUT request for match ID:", id);
-  console.log("Updated match data:", updatedMatch);
+  // console.log("Received PUT request for match ID:", id);
+  // console.log("Updated match data:", updatedMatch);
 
   const updatedResultDetailed = {
     sets: updatedMatch.resultDetailed.sets.map(
@@ -65,7 +64,7 @@ export async function PUT(
       data: matchData,
     });
 
-    console.log("Match updated successfully:", match);
+    // console.log("Match updated successfully:", match);
     return NextResponse.json(match);
   } catch (error) {
     console.error("Error updating match:", error);

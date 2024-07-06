@@ -4,6 +4,7 @@ import axios from "axios";
 import { Layout, Table, Button, Select, Space, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
+import { useSession } from "next-auth/react"; // Importowanie useSession
 
 const { Header, Content, Footer } = Layout;
 const { Option } = Select;
@@ -31,6 +32,7 @@ interface MatchWithTeams {
 }
 
 const Home = () => {
+  const { data: session } = useSession(); // Użycie useSession
   const [matches, setMatches] = useState<MatchWithTeams[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "PLANNED" | "IN_PROGRESS" | "FINISHED"
@@ -47,6 +49,21 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching matches:", error);
       message.error("Failed to fetch matches");
+    }
+  };
+
+  const handleStatusChangeDb = async (record: MatchWithTeams) => {
+    try {
+      const updatedMatch = {
+        ...record,
+        status: "IN_PROGRESS" as "IN_PROGRESS",
+      };
+      await axios.put(`/api/matches/${record.id}`, updatedMatch);
+      message.success(`Match ${record.id} status updated to IN_PROGRESS`);
+      fetchMatches(); // Odświeżenie listy meczów
+    } catch (error) {
+      console.error("Error updating match status:", error);
+      message.error("Failed to update match status");
     }
   };
 
@@ -138,10 +155,17 @@ const Home = () => {
       key: "actions",
       render: (_: any, record: MatchWithTeams) => (
         <Space>
-          {(record.status === "PLANNED" || record.status === "IN_PROGRESS") && (
-            <Button type="primary">
-              <Link href={`/match/${record.id}`}>View</Link>
+          {record.status === "PLANNED" && session?.user.role === "REFEREE" ? (
+            <Button type="primary" onClick={() => handleStatusChangeDb(record)}>
+              Start Match
             </Button>
+          ) : (
+            (record.status === "PLANNED" ||
+              record.status === "IN_PROGRESS") && (
+              <Button type="primary">
+                <Link href={`/match/${record.id}`}>View</Link>
+              </Button>
+            )
           )}
           {record.status === "FINISHED" && (
             <Button onClick={() => handleCopy(record)}>Copy Data</Button>
